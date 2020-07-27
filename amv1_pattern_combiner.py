@@ -1,22 +1,29 @@
-def pattern_combiner(rows, columns, loops):
+def pattern_combiner(rows, columns, loops, border):
 
     from amv1_pattern_generator import pattern_generator
 
-    def border_maker(y, inside):
+    def border_maker(y, inside, border):
 
         for item in inside:
-            item.insert(0, 9)
-            item.append(9)
+            for repeater in range(border):
+                item.insert(0, 9)
+                item.append(9)
 
-        topBottomRow = [9 for iterations in range(y + 2)]
+        topBottomRow = [9 for iterations in range(y + (border * 2))]
 
-        inside.insert(0, topBottomRow)
-        inside.append(topBottomRow)
+        for repeater in range(border):
+            inside.insert(0, topBottomRow)
+            inside.append(topBottomRow)
         return inside
 
     def best_layout(number_of_patterns):
 
         addedPattern = False
+        if number_of_patterns == 1:
+            return 1, 1, addedPattern
+        elif number_of_patterns == 2:
+            return 1, 2, addedPattern
+
         if number_of_patterns % 2 != 0:
             if (number_of_patterns ** .5) % 1 != 0:
                 number_of_patterns += 1
@@ -48,15 +55,15 @@ def pattern_combiner(rows, columns, loops):
                 for currentPattern in range((currentRow - axis2), currentRow):
 
                     if axis2Counter < axis2:
-                        print(f'currentPattern:{currentPattern} rowsOfPattern:{rowsOfPattern}')
+                        # print(f'currentPattern:{currentPattern} rowsOfPattern:{rowsOfPattern}')
                         inner.extend(patterns[currentPattern][rowsOfPattern])
                         axis2Counter += 1
 
                     else:
                         outer.append(inner)
                         inner = []
-                        print('new inner)')
-                        print(f'currentPattern:{currentPattern} rowsOfPattern:{rowsOfPattern}')
+                        # print('new inner)')
+                        # print(f'currentPattern:{currentPattern} rowsOfPattern:{rowsOfPattern}')
                         inner.extend(patterns[currentPattern][rowsOfPattern])
                         axis2Counter = 1
             outer.append(inner)
@@ -77,7 +84,7 @@ def pattern_combiner(rows, columns, loops):
         else:
             blank = False
         pattern = pattern_generator(rows, columns, blank)
-        patternWithBorder = border_maker(columns, pattern)
+        patternWithBorder = border_maker(columns, pattern, border)
         combinedPatterns.append(patternWithBorder)
 
     output = pattern_display(combinedPatterns, outerRows, outerColumns)
@@ -85,11 +92,68 @@ def pattern_combiner(rows, columns, loops):
     return output
 
 
-rows, columns = 12, 8
-numberOfPatterns = 7
+patternRows, patternColumns = 8, 8
+numberOfPatterns = 2
+borderWidth = 1
 
-combined = pattern_combiner(rows, columns, numberOfPatterns)
 
-for i in combined:
-    print(i)
-print()
+
+# print(f'rows: {len(combined)}')
+# print(f'columns: {len(combined[0])}')
+
+#----
+import pygame
+import os
+import time
+
+pygame.init()
+os.environ["SDL_VIDEO_CENTERED"] = '1'
+
+clock = pygame.time.Clock()
+fps = 24
+
+automata = True
+while automata:
+    clock.tick(fps)
+
+
+    combined = pattern_combiner(patternRows,patternColumns,numberOfPatterns,borderWidth)
+    screen_rows = len(combined)
+    screen_columns = len(combined[0])
+
+    cellScale = 50
+    cellOffset = 0
+
+    screenWidth, screenHeight = (screen_columns * cellScale), (screen_rows * cellScale)
+    screenSize = (screenWidth,screenHeight)
+    screen = pygame.display.set_mode(screenSize)
+
+    gridColor = (0, 0, 0)
+    background = (0, 0, 0)
+    patternColor = (200, 200, 200)
+    borderColor = (0, 0, 0)
+    screen.fill(gridColor)
+
+
+    def print_generation(rows, columns, array, print_screen, print_background, color, border, scale, offset):
+
+        for x in range(rows):
+            for y in range(columns):
+
+                y_pos = y * scale
+                x_pos = x * scale
+
+                if array[x][y] == 1:
+                    pygame.draw.rect(print_screen, color,[y_pos,x_pos,scale - offset,scale - offset])
+
+                if array[x][y] == 0:
+                    pygame.draw.rect(print_screen, print_background,[y_pos,x_pos,scale - offset,scale - offset])
+
+                if array[x][y] == 9:
+                    pygame.draw.rect(print_screen, border, [y_pos,x_pos,scale - offset,scale - offset])
+
+
+
+    print_generation(screen_rows, screen_columns, combined, screen, background, patternColor, borderColor, cellScale, cellOffset)
+    pygame.display.update()
+    time.sleep(.01)
