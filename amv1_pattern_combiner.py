@@ -93,9 +93,8 @@ def pattern_combiner(rows, columns, loops, border):
 
 
 patternRows, patternColumns = 8, 8
-numberOfPatterns = 2
-borderWidth = 1
-
+numberOfPatterns = 50
+borderWidth = 5
 
 
 # print(f'rows: {len(combined)}')
@@ -105,6 +104,7 @@ borderWidth = 1
 import pygame
 import os
 import time
+import random
 
 pygame.init()
 os.environ["SDL_VIDEO_CENTERED"] = '1'
@@ -116,26 +116,26 @@ automata = True
 while automata:
     clock.tick(fps)
 
-
     combined = pattern_combiner(patternRows,patternColumns,numberOfPatterns,borderWidth)
     screen_rows = len(combined)
     screen_columns = len(combined[0])
 
-    cellScale = 50
+    cellScale = 8
     cellOffset = 0
 
     screenWidth, screenHeight = (screen_columns * cellScale), (screen_rows * cellScale)
     screenSize = (screenWidth,screenHeight)
     screen = pygame.display.set_mode(screenSize)
 
-    gridColor = (0, 0, 0)
-    background = (0, 0, 0)
-    patternColor = (200, 200, 200)
-    borderColor = (0, 0, 0)
+    gridColor = (255, 255, 255)
+    background = (255, 255, 255)
+    patternColor = (0, 0, 0)
+    redPattern = (255, 0, 0)
+    borderColor = (255, 255, 255)
     screen.fill(gridColor)
 
 
-    def print_generation(rows, columns, array, print_screen, print_background, color, border, scale, offset):
+    def print_generation(rows, columns, array, print_screen, print_background, color, red, border, scale, offset):
 
         for x in range(rows):
             for y in range(columns):
@@ -143,7 +143,15 @@ while automata:
                 y_pos = y * scale
                 x_pos = x * scale
 
+                a = random.randint(0,255)
+                b = random.randint(0,255)
+                c = random.randint(0,255)
+                rColor = (a,b,c)
+
                 if array[x][y] == 1:
+                    pygame.draw.rect(print_screen, color,[y_pos,x_pos,scale - offset,scale - offset])
+
+                if array[x][y] == 2:
                     pygame.draw.rect(print_screen, color,[y_pos,x_pos,scale - offset,scale - offset])
 
                 if array[x][y] == 0:
@@ -153,7 +161,7 @@ while automata:
                     pygame.draw.rect(print_screen, border, [y_pos,x_pos,scale - offset,scale - offset])
 
 
-
-    print_generation(screen_rows, screen_columns, combined, screen, background, patternColor, borderColor, cellScale, cellOffset)
+    print_generation(screen_rows, screen_columns, combined, screen, background,
+                     patternColor, redPattern, borderColor, cellScale, cellOffset)
     pygame.display.update()
-    time.sleep(.01)
+    time.sleep(100)

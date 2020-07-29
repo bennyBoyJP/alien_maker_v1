@@ -2,7 +2,20 @@ def pattern_generator(x, y, added):
     import random
     outer, inner = [],[]
 
-    density = [0, 1, 0, 1, 0]
+    randomDensity = random.randint(1, 10)
+    if randomDensity < 3:
+        density = [0, 0, 0, 1, 1]
+    elif randomDensity < 10:
+        density = [0, 0, 1, 1, 1]
+    elif randomDensity == 10q
+
+
+
+    qqq:
+        density = [0, 0, 2, 2, 2]
+
+
+
 
     if added:
         for countRow in range(x):
